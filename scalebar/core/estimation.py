@@ -32,6 +32,7 @@ def get_scale(img: np.ndarray,
     """
 
     crop = pos.crop(img, x=0.2, y=0.2)
+    crop = cv2.cvtColor(crop, cv2.COLOR_RGB2GRAY)
 
     if cv2_corners:
         # OpenCV's corner/feature detector
