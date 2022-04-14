@@ -1,6 +1,8 @@
 import cv2
 import numpy as np
 
+import typing as T
+
 
 def filter(points: np.ndarray,
            img: np.ndarray,
@@ -26,7 +28,7 @@ def filter(points: np.ndarray,
     return win_var >= mean_var
 
 
-def rectify(points: np.ndarray) -> np.ndarray:
+def rectify(points: np.ndarray) -> T.Tuple[np.ndarray, float]:
     """
         Rectify the points so that the dominant direction
         is paralell to the image axes.
@@ -43,7 +45,7 @@ def rectify(points: np.ndarray) -> np.ndarray:
     h_pts = np.hstack([points, np.ones((len(points), 1))])
 
     new_pts = np.round(h_pts @ rot_mat.T)
-    return new_pts
+    return new_pts, angle
 
 
 def get_angle(points: np.ndarray) -> float:
@@ -60,8 +62,10 @@ def get_angle(points: np.ndarray) -> float:
     data = X.reshape(-1, 1, 2)[..., ::-1]
     kwargs = dict(lines_max=1,
                   threshold=1,
+                  min_rho=0,
                   max_rho=360,
                   rho_step=1,
+                  min_theta=0,
                   max_theta=np.pi,
                   theta_step=np.pi / 90)
 

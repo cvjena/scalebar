@@ -5,7 +5,8 @@ from pathlib import Path
 from imageio import imread
 
 
-def read_image(path: T.Optional[str, Path], mode: str = "RGB") -> np.ndarray:
+def read_image(path: T.Optional[T.Union[str, Path]],
+               mode: str = "RGB") -> np.ndarray:
     """
         Reads an image located at the given path
     """

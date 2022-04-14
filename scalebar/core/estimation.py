@@ -14,7 +14,8 @@ def get_scale(img: np.ndarray,
               square_unit: float = 1.0,
               min_dist: int = 5,
               max_corners: int = 200,
-              cv2_corners: bool = False) -> T.Optional[float]:
+              cv2_corners: bool = False,
+              return_intermediate: bool = False) -> T.Optional[float]:
     """
         Estimates the scale from the image in pixel per mm
 
@@ -29,10 +30,22 @@ def get_scale(img: np.ndarray,
 
         Returns:
             scale: scaling factor in pixel per mm
+            intermediate: (optional) returns intermediate estimations
+                as dictionary with following keys:
+                    * detected_corners
+                    * filter_mask
+                    * rectification_angle
+                    * final_corners
     """
 
     crop = pos.crop(img, x=0.2, y=0.2)
     crop = cv2.cvtColor(crop, cv2.COLOR_RGB2GRAY)
+    intermediate = dict(
+        detected_corners=None,
+        filter_mask=None,
+        rectification_angle=None,
+        final_corners=None,
+    )
 
     if cv2_corners:
         # OpenCV's corner/feature detector
@@ -48,16 +61,25 @@ def get_scale(img: np.ndarray,
     if len(corners) == 0:
         return None
 
+    intermediate["detected_corners"] = corners
+
     mask = corner_ops.filter(corners, crop)
+    intermediate["filter_mask"] = mask
     corners = corners[mask]
-    corners = corner_ops.rectify(corners)
+    corners, angle = corner_ops.rectify(corners)
+    intermediate["rectification_angle"] = angle
+    intermediate["final_corners"] = corners
 
     distances = pdist(corners, metric="cityblock")
     # unit_distance is in "pixel per square-block"
     unit_distance = optimal_distance(distances)
 
     scale = unit_distance / square_unit
-    return scale
+
+    if return_intermediate:
+        return scale, intermediate
+    else:
+        return scale
 
 
 def optimal_distance(distances: np.ndarray, step: float = 0.25) -> float:
