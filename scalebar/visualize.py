@@ -3,6 +3,7 @@ if __name__ != '__main__':
     raise Exception("Do not import me!")
 
 import cv2
+import logging
 import scalebar
 
 from scalebar import utils
@@ -31,10 +32,15 @@ def main(args) -> None:
     positions = {pos.name.lower(): pos for pos in scalebar.Position}
     pos = positions[args.position]
     crop = pos.crop(im)
-    px_per_mm, interm = scalebar.get_scale(im,
-                                           pos=pos,
-                                           square_unit=args.unit,
-                                           return_intermediate=True)
+    result = scalebar.get_scale(im,
+                                pos=pos,
+                                square_unit=args.unit,
+                                return_intermediate=True)
+
+    if result is None:
+        logging.info("Cannot estimate the scale in the given image!")
+
+    px_per_mm, interm = result
 
     init_corners = interm["detected_corners"]
     mask = interm["filter_mask"]

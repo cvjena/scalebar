@@ -13,6 +13,3 @@ test_deploy: build_sdist
 get_version:
 	@printf "v"
 	@python setup.py --version
-
-run_tests:
-	bash scripts/tests.sh
