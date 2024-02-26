@@ -70,7 +70,7 @@ def main(args) -> None:
     ax.scatter(xs, ys, marker=".", c="red")
 
     if px_per_mm is None:
-        fig.suptitle(f"Estimation Failed!")
+        fig.suptitle("Estimation Failed!")
     else:
         size = W / px_per_mm, H / px_per_mm
         fig.suptitle(" | ".join(
